@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, jsonify
-
+import os
 from models import *
 
 
@@ -8,7 +8,9 @@ app = Flask(__name__)
 
 servername = '(localdb)\MSSQLLocalDB'
 dbname = 'CarSales'
-cstr = 'mssql+pyodbc://@' + servername + '/' + dbname + '?trusted_connection=yes&driver=ODBC+Driver+17+for+SQL+Server'
+# cstr = os.environ.get('SQLAZURECONNSTR_WWIF',"mssql+pyodbc://@(localdb)\MSSQLLocalDB/CarSales?trusted_connection=yes&driver=ODBC+Driver+17+for+SQL+Server")
+cstr = os.environ.get('SQLAZURECONNSTR_WWIF',"mssql+pyodbc://ideasvector:S@g3M1l3s108@tcp:ideasvector.database.windows.net,1433/GenericSQLDatabase?driver=ODBC+Driver+17+for+SQL+Server")
+# 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:ideasvector.database.windows.net,1433;Database=GenericSQLDatabase;Uid=ideasvector;Pwd=S@g3M1l3s108};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 app.config['SQLALCHEMY_DATABASE_URI'] = cstr
 app.config['SQLALCHEMY_ECHO'] = True
 
