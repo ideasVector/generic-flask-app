@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = cstr
 app.config['SQLALCHEMY_ECHO'] = True
 
 db.init_app(app)
-db.create_all()
+db.create_all(app=app)
 
 @app.route('/')
 def index():
