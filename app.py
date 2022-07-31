@@ -9,7 +9,7 @@ app = Flask(__name__)
 servername = '(localdb)\MSSQLLocalDB'
 dbname = 'CarSales'
 # cstr = os.environ.get('SQLAZURECONNSTR_WWIF',"mssql+pyodbc://@(localdb)\MSSQLLocalDB/CarSales?trusted_connection=yes&driver=ODBC+Driver+17+for+SQL+Server")
-cstr = os.environ.get('SQLAZURECONNSTR_WWIF',"mssql+pyodbc://ideasvector:S@g3M1l3s108@ideasvector.database.windows.net,1433/GenericSQLDatabase?driver=ODBC+Driver+17+for+SQL+Server")
+cstr = os.environ.get('SQLAZURECONNSTR_WWIF',"mssql+pyodbc://ideasvector:Sag3M1l3s108@ideasvector.database.windows.net:1433/GenericSQLDatabase?driver=ODBC+Driver+17+for+SQL+Server")
 # 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:ideasvector.database.windows.net,1433;Database=GenericSQLDatabase;Uid=ideasvector;Pwd=S@g3M1l3s108};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 app.config['SQLALCHEMY_DATABASE_URI'] = cstr
 app.config['SQLALCHEMY_ECHO'] = True
