@@ -1,28 +1,77 @@
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, jsonify
+
+from models import *
+
+
 app = Flask(__name__)
+
+servername = '(localdb)\MSSQLLocalDB'
+dbname = 'CarSales'
+cstr = 'mssql+pyodbc://@' + servername + '/' + dbname + '?trusted_connection=yes&driver=ODBC+Driver+17+for+SQL+Server'
+app.config['SQLALCHEMY_DATABASE_URI'] = cstr
+app.config['SQLALCHEMY_ECHO'] = True
+
+db.init_app(app)
 
 
 @app.route('/')
 def index():
-   print('Request for index page received')
-   return render_template('index.html')
+    cars = Cars.query.all()
+    sales_people = SalesPeople.query.all()
+    return render_template("carslist.html", cars=cars, sales_people=sales_people)
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-@app.route('/hello', methods=['POST'])
-def hello():
-   name = request.form.get('name')
+@app.route("/addcar", methods=['GET', 'POST'])
+def addcar():
+    if request.method == 'GET':
+        return render_template("addcar.html", car={})
+    if request.method == 'POST':
+        name = request.form["name"]
+        year = int(request.form["year"])
+        price = float(request.form["price"])
+        newcar = Cars(name=name, year=year, price=price)
+        db.session.add(newcar)
+        db.session.commit()
+        return redirect('/')
 
-   if name:
-       print('Request for hello page received with name=%s' % name)
-       return render_template('hello.html', name = name)
-   else:
-       print('Request for hello page received with no name or blank name -- redirecting')
-       return redirect(url_for('index'))
+
+@app.route('/updatecar/<int:id>', methods=['GET', 'POST'])
+def updatecar(id):
+    if request.method == 'GET':
+        car = Cars.query.filter_by(id=id).first()
+        return render_template("addcar.html", car=car)
+    if request.method == 'POST':
+        name = str(request.form["name"])
+        year = int(request.form["year"])
+        price = float(request.form["price"])
+        car = Cars.query.filter_by(id=id).first()
+        car.name = name
+        car.year = year
+        car.price = price
+        db.session.commit()
+        return redirect('/')
+
+
+@app.route('/deletecar/<int:id>')
+def deletecar(id):
+    Cars.query.filter_by(id=id).delete()
+    db.session.commit()
+    return redirect('/')
+
+
+@app.route('/addsale', methods=['GET', 'POST'])
+def addsale():
+    new_car_id = request.form.get('salescar_id')
+    new_salesperson_id = request.form.get('salesperson_id')
+    new_price = request.form.get('actual_price')
+    new_sale = CarSales(car_id=new_car_id, salesperson_id=new_salesperson_id, price=new_price)
+    db.session.add(new_sale)
+    db.session.commit()
+    total_sales = db.session.execute('select sum(price) as sales from car_sales where salesperson_id = %s' % new_salesperson_id)
+    for row in total_sales:
+        total = row['sales']
+    return jsonify({'result': 'Added', 'total': total})
 
 
 if __name__ == '__main__':
